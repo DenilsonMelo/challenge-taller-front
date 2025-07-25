@@ -1,0 +1,26 @@
+import { ProductResponse } from "../products/types";
+
+export type CartItemData = {
+  id: string;
+  productId: string;
+  cartId: string;
+  quantity: number;
+  total: number;
+  product: ProductResponse;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type CartResponse = {
+  id: string;
+  clientId: string;
+  total: number;
+  createdAt: string;
+  updatedAt: string;
+  user: {
+    id: string;
+    name: string;
+    mail: string;
+  };
+  cartItems: CartItemData[];
+};
