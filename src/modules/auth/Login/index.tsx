@@ -27,7 +27,6 @@ export default function Login() {
       }
       router.push("/products");
     } catch (error: any) {
-      console.error("Login error:", error);
       toast.error(error?.response?.data?.message || "Erro ao fazer login");
     }
   });
