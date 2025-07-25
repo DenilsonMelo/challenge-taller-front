@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Archivo } from "next/font/google";
 import "./globals.css";
+import { ToastContainer } from "react-toastify";
 
 const archivo = Archivo({
   variable: "--font-archivo",
@@ -24,6 +25,7 @@ export default function RootLayout({
         className={`${archivo.variable} antialiased`}
         cz-shortcut-listen="true"
       >
+        <ToastContainer closeOnClick draggable />
         {children}
       </body>
     </html>

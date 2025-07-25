@@ -1,6 +1,6 @@
 import z from "zod";
 
-export const loginSchema = z.object({
+export const LoginSchema = z.object({
   mail: z
     .string()
     .min(1, { message: "O email não pode ser vazio." }),
@@ -10,4 +10,6 @@ export const loginSchema = z.object({
     .min(1, { message: "A senha não pode estar vazia." })
 });
 
-export type loginSchema = z.infer<typeof loginSchema>;
+export type LoginSchema = z.infer<typeof LoginSchema>;
+
+export type LoginData = z.infer<typeof LoginSchema>;
