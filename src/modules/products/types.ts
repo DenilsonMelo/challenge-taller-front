@@ -17,7 +17,7 @@ export type ProductData = z.infer<typeof ProductSchema>;
 
 export type ProductResponse = ProductData & {
   id: string;
-  image_url: string;
+  imageUrl: string;
   createdAt: string;
   updatedAt: string;
 };
