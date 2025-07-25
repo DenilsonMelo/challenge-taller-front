@@ -22,6 +22,7 @@ export default function RootLayout({
     <html lang="pt-BR">
       <body
         className={`${archivo.variable} antialiased`}
+        cz-shortcut-listen="true"
       >
         {children}
       </body>
