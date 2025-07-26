@@ -3,11 +3,15 @@
 import { Button } from "./ui/button";
 import useAuthStore from "@/modules/auth/authStore";
 import { useRouter } from "next/navigation";
-import { LogIn, LogOut } from "lucide-react";
+import { LogIn, LogOut, ShoppingCart } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
+import { useCart } from "../contexts/CartContext";
 
 export default function Header() {
   const { logout, user } = useAuthStore();
+  const { getTotalItems } = useCart();
+  const totalItems = getTotalItems();
   const router = useRouter();
 
   const handleLogout = () => {
@@ -19,19 +23,35 @@ export default function Header() {
     <header className="bg-[var(--white)] border-b-2 border-[var(--light-grey)] shadow-sm sticky top-0 z-50">
       <div className="container mx-auto px-4 py-3">
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <Image src="/logo.png" alt="TallerStore" width={40} height={40} />
-            <div className="flex flex-col">
-              <h1 className="text-xl font-bold text-[var(--black)] sm:text-2xl">
-                TallerStore
-              </h1>
-              <span className="text-xs text-[var(--random-4)] hidden sm:block">
-                Sua loja favorita
-              </span>
+          <Link href="/products">
+            <div className="flex items-center space-x-2">
+              <Image src="/logo.png" alt="TallerStore" width={40} height={40} />
+              <div className="flex flex-col">
+                <h1 className="text-xl font-bold text-[var(--black)] sm:text-2xl">
+                  TallerStore
+                </h1>
+                <span className="text-xs text-[var(--random-4)] hidden sm:block">
+                  Sua loja favorita
+                </span>
+              </div>
             </div>
-          </div>
+          </Link>
 
           <div className="flex items-center space-x-3">
+            <Button
+              onClick={() => router.push("/cart")}
+              variant="ghost"
+              size="sm"
+              className="relative p-2 hover:bg-[var(--color-primary-lightest)]"
+            >
+              <ShoppingCart className="h-6 w-6 text-[var(--primary-base)]" />
+              {totalItems > 0 && (
+                <span className="absolute -top-1 -right-1 bg-[var(--primary-base)] text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
+                  {totalItems > 99 ? "99+" : totalItems}
+                </span>
+              )}
+            </Button>
+
             {user ? (
               <>
                 <div className="hidden md:flex flex-col items-end">

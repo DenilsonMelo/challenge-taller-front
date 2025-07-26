@@ -9,15 +9,18 @@ import {
 } from "./ui/card";
 import { ProductResponse } from "@/modules/products/types";
 import Image from "next/image";
+import { Loader } from "./ui/loader";
 
 interface ProductCardProps {
   product: ProductResponse;
   onAddToCart?: (product: ProductResponse) => void;
+  disabled?: boolean;
 }
 
 export default function ProductCard({
   product,
   onAddToCart,
+  disabled = false,
 }: ProductCardProps) {
   const handleAddToCart = () => {
     onAddToCart?.(product);
@@ -50,11 +53,13 @@ export default function ProductCard({
       </CardContent>
 
       <CardFooter className="p-4 pt-0">
-        <Button
-          onClick={handleAddToCart}
-          className="w-full"
-          variant="default"
-        >
+        <Button onClick={handleAddToCart} className="w-full" variant="default">
+          {disabled && (
+            <>
+              <Loader size="sm" className="mr-2" />
+              Adicionando...
+            </>
+          )}
           Adicionar ao Carrinho
         </Button>
       </CardFooter>
