@@ -10,20 +10,39 @@ import {
 import { ProductResponse } from "@/modules/products/types";
 import Image from "next/image";
 import { Loader } from "./ui/loader";
+import { Edit, Trash2 } from "lucide-react";
+import useAuthStore from "@/modules/auth/authStore";
 
 interface ProductCardProps {
   product: ProductResponse;
   onAddToCart?: (product: ProductResponse) => void;
+  onEdit?: (product: ProductResponse) => void;
+  onDelete?: (productId: string) => void;
   disabled?: boolean;
 }
 
 export default function ProductCard({
   product,
   onAddToCart,
+  onEdit,
+  onDelete,
   disabled = false,
 }: ProductCardProps) {
+  const { user } = useAuthStore();
+  const isAdmin = user?.userType === "ADMIN";
+
   const handleAddToCart = () => {
     onAddToCart?.(product);
+  };
+
+  const handleEdit = () => {
+    onEdit?.(product);
+  };
+
+  const handleDelete = () => {
+    if (window.confirm("Tem certeza que deseja excluir este produto?")) {
+      onDelete?.(product.id);
+    }
   };
 
   return (
@@ -37,6 +56,26 @@ export default function ProductCard({
             className="object-cover group-hover:scale-105 transition-transform duration-300"
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           />
+          {isAdmin && (
+            <div className="absolute top-2 right-2 flex gap-1 transition-opacity duration-300">
+              <Button
+                size="sm"
+                variant="default"
+                onClick={handleEdit}
+                className="p-2 h-8 w-8"
+              >
+                <Edit size={14} />
+              </Button>
+              <Button
+                size="sm"
+                variant="default"
+                onClick={handleDelete}
+                className="p-2 h-8 w-8"
+              >
+                <Trash2 size={14} />
+              </Button>
+            </div>
+          )}
         </div>
       </CardHeader>
 
