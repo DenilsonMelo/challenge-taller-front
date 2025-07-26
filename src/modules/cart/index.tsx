@@ -11,66 +11,46 @@ import { Minus, Plus, Trash2, ShoppingCart } from "lucide-react";
 import Image from "next/image";
 import { formatPrice } from "@/shared/lib/utils";
 import { toast } from "react-toastify";
-import { useState } from "react";
+import { useEffect } from "react";
 import CartItemService from "@/modules/cart/Services/cart-item";
+import { useCart } from "@/shared/contexts/CartContext";
 
 type CartDataProps = {
   data: CartResponse;
 };
 
 export default function Cart({ data }: CartDataProps) {
-  const [cartData, setCartData] = useState<CartResponse>(data);
+  const { cart, setCart, updateItemQuantity, removeItem } = useCart();
+
+  useEffect(() => {
+    setCart(data);
+  }, [data, setCart]);
+
+  const cartData = cart || data;
 
   const onUpdateQuantity = async (itemId: string, quantity: number) => {
     try {
-      setCartData((prev) => ({
-        ...prev,
-        cartItems: prev.cartItems.map((item) =>
-          item.id === itemId
-            ? {
-                ...item,
-                quantity,
-                total: item.product.price * quantity,
-              }
-            : item
-        ),
-        total: prev.cartItems.reduce(
-          (acc, item) =>
-            acc +
-            (item.id === itemId ? item.product.price * quantity : item.total),
-          0
-        ),
-      }));
+      updateItemQuantity(itemId, quantity);
 
-    const { ...itemData } = cartData.cartItems.find((item) => item.id === itemId) || {};
-    delete (itemData as any).product;
-    await CartItemService.update(itemId, {
-      ...itemData,
-      quantity,
-    });
+      const { ...itemData } = cartData.cartItems.find((item) => item.id === itemId) || {};
+      delete (itemData as any).product;
+      await CartItemService.update(itemId, {
+        ...itemData,
+        quantity,
+      });
     } catch (error: any) {
-      setCartData(data);
+      setCart(data);
       toast.error(error?.response?.data?.message || "Erro ao atualizar quantidade");
     }
   };
 
   const onRemoveItem = async (itemId: string) => {
     try {
-      const itemToRemove = cartData.cartItems.find(
-        (item) => item.id === itemId
-      );
-
-      setCartData((prev) => ({
-        ...prev,
-        cartItems: prev.cartItems.filter((item) => item.id !== itemId),
-        total: prev.total - (itemToRemove?.total || 0),
-      }));
-
+      removeItem(itemId);
       await CartItemService.remove(itemId);
-
       toast.success("Item removido do carrinho!");
     } catch (error: any) {
-      setCartData(data);
+      setCart(data);
       toast.error(error?.response?.data?.message || "Erro ao remover item");
     }
   };
@@ -90,7 +70,9 @@ export default function Cart({ data }: CartDataProps) {
       // Redirecionar para página de checkout
       // router.push('/checkout');
     } catch (error: any) {
-      toast.error(error?.response?.data?.message || "Erro ao processar checkout");
+      toast.error(
+        error?.response?.data?.message || "Erro ao processar checkout"
+      );
     }
   };
 

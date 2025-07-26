@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Archivo } from "next/font/google";
 import "./globals.css";
 import { ToastContainer } from "react-toastify";
+import { CartProvider } from "@/shared/contexts/CartContext";
 
 const archivo = Archivo({
   variable: "--font-archivo",
@@ -25,8 +26,10 @@ export default function RootLayout({
         className={`${archivo.variable} antialiased`}
         cz-shortcut-listen="true"
       >
-        <ToastContainer closeOnClick draggable />
-        {children}
+        <CartProvider>
+          <ToastContainer closeOnClick draggable />
+          {children}
+        </CartProvider>
       </body>
     </html>
   );
