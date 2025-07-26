@@ -1,11 +1,14 @@
 import { ProductResponse } from "../products/types";
 
-export type CartItemData = {
-  id: string;
+export type CreateCartItem = {
   productId: string;
   cartId: string;
   quantity: number;
   total: number;
+}
+
+export interface CartItemData extends CreateCartItem {
+  id: string;
   product: ProductResponse;
   createdAt: string;
   updatedAt: string;
