@@ -1,23 +1,78 @@
 import ProductCard from "@/shared/components/ProductCard";
 import { ProductResponse } from "./types";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import CartService from "@/modules/cart/Services";
 import CartItemService from "@/modules/cart/Services/cart-item";
 import useAuthStore from "@/modules/auth/authStore";
 import { CartResponse } from "@/modules/cart/types";
 import { toast } from "react-toastify";
+import { Button } from "@/shared/components/ui/button";
+import { Plus } from "lucide-react";
+import ProductModal from "@/shared/components/ProductModal";
+import ProductService from "./Services/index";
 
 type ProductProps = {
   data: ProductResponse[];
 };
 
-export default function Products({ data }: ProductProps) {
+export default function Products({ data: initialData }: ProductProps) {
   const { user } = useAuthStore();
   const [isLoading, setIsLoading] = useState(false);
+  const [products, setProducts] = useState<ProductResponse[]>(initialData);
+  const [showModalProduct, setShowModalProduct] = useState(false);
+  const [selectedProduct, setSelectedProduct] =
+    useState<ProductResponse | null>(null);
+
+  const addProduct = useCallback((newProduct: ProductResponse) => {
+    setProducts((state) => [newProduct, ...state]);
+  }, []);
+
+  const updateProduct = useCallback((updatedProduct: ProductResponse) => {
+    setProducts((state) =>
+      state.map((item) =>
+        item.id === updatedProduct.id ? updatedProduct : item
+      )
+    );
+  }, []);
+
+  const removeProduct = useCallback((productId: string) => {
+    setProducts((state) => state.filter((item) => item.id !== productId));
+  }, []);
+
+  const handleEditProduct = (product: ProductResponse) => {
+    setSelectedProduct(product);
+    setShowModalProduct(true);
+  };
+
+  const handleDeleteProduct = async (productId: string) => {
+    try {
+      await ProductService.delete(productId);
+      removeProduct(productId);
+      toast.success("Produto excluído com sucesso!");
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message || "Erro ao excluir produto");
+    }
+  };
+
+  const handleModalClose = () => {
+    setShowModalProduct(false);
+    setSelectedProduct(null);
+  };
+
+  const handleProductSuccess = (product: ProductResponse) => {
+    if (selectedProduct) {
+      updateProduct(product);
+    } else {
+      addProduct(product);
+    }
+    handleModalClose();
+  };
 
   const addToCart = async (product: ProductResponse) => {
     if (!user) {
-      toast.error("Você precisa estar logado para adicionar produtos ao carrinho");
+      toast.error(
+        "Você precisa estar logado para adicionar produtos ao carrinho"
+      );
       return;
     }
 
@@ -30,7 +85,7 @@ export default function Products({ data }: ProductProps) {
 
     try {
       let cart: CartResponse | null = null;
-      
+
       try {
         const cartResponse = await CartService.getMyCart();
         cart = cartResponse.data;
@@ -46,12 +101,12 @@ export default function Products({ data }: ProductProps) {
       }
 
       const existingItem = cart?.cartItems?.find(
-        item => item.product.id === product.id
+        (item) => item.product.id === product.id
       );
 
       if (existingItem) {
         const newQuantity = existingItem.quantity + 1;
-        
+
         if (newQuantity > product.stock) {
           toast.error("Quantidade solicitada excede o estoque disponível");
           return;
@@ -59,7 +114,7 @@ export default function Products({ data }: ProductProps) {
 
         await CartItemService.update(existingItem.id, {
           quantity: newQuantity,
-          total: product.price * newQuantity
+          total: product.price * newQuantity,
         });
 
         toast.success("Quantidade do produto atualizada no carrinho!");
@@ -74,16 +129,15 @@ export default function Products({ data }: ProductProps) {
           productId: product.id,
           cartId: cart.id,
           quantity: 1,
-          total: product.price
+          total: product.price,
         });
 
         toast.success("Produto adicionado ao carrinho!");
       }
-
     } catch (error: any) {
       toast.error(
-        error?.response?.data?.message || 
-        "Erro ao adicionar produto ao carrinho"
+        error?.response?.data?.message ||
+          "Erro ao adicionar produto ao carrinho"
       );
     } finally {
       setIsLoading(false);
@@ -91,17 +145,36 @@ export default function Products({ data }: ProductProps) {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {data.map((product) => (
-          <ProductCard
-            key={product.id}
-            product={product}
-            onAddToCart={addToCart}
-            disabled={isLoading}
-          />
-        ))}
+    <>
+      <div className="container mx-auto px-4 pb-8">
+        {user?.userType === "ADMIN" && (
+          <div className="flex justify-end mb-4">
+            <Button onClick={() => setShowModalProduct(true)}>
+              <Plus className="mr-2" />
+              Adicionar produto
+            </Button>
+          </div>
+        )}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {products.map((product) => (
+            <ProductCard
+              key={product.id}
+              product={product}
+              onAddToCart={addToCart}
+              onEdit={handleEditProduct}
+              onDelete={handleDeleteProduct}
+              disabled={isLoading}
+            />
+          ))}
+        </div>
       </div>
-    </div>
+
+      <ProductModal
+        isOpen={showModalProduct}
+        onClose={handleModalClose}
+        product={selectedProduct}
+        onSuccess={handleProductSuccess}
+      />
+    </>
   );
 }
