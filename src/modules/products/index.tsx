@@ -155,11 +155,15 @@ export default function Products({ data: initialData }: ProductProps) {
             </Button>
           </div>
         )}
-        
+
         {products.length === 0 && (
           <div className="text-center text-gray-500">
-            <Package className="h-5 w-5 mr-2 text-gray-500" />
-            Nenhum produto encontrado.
+            <div>
+              <p className="flex items-center justify-center">
+                <Package className="h-5 w-5 mr-2 text-gray-500" />
+                Nenhum produto encontrado.
+              </p>
+            </div>
           </div>
         )}
 
