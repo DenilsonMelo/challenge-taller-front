@@ -6,11 +6,12 @@ import { toast } from "react-toastify";
 import { zodResolver } from "@hookform/resolvers/zod";
 import useAuthStore from "../authStore";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function Login() {
   const { login, setUser } = useAuthStore();
   const router = useRouter();
-  
+
   const {
     register,
     handleSubmit,
@@ -30,7 +31,7 @@ export default function Login() {
       toast.error(error?.response?.data?.message || "Erro ao fazer login");
     }
   });
-  
+
   return (
     <div className="flex flex-col h-screen items-center justify-center">
       <h1 className="text-2xl font-bold mb-4">Login</h1>
@@ -48,6 +49,12 @@ export default function Login() {
             hint={errors.password?.message}
           />
           <Button className="w-full">Entrar</Button>
+          <span className="text-center mt-2">
+            Não tem uma conta?{" "}
+            <Link href="/auth/register" className="text-[var(--primary-base)] hover:underline">
+              Cadastre-se
+            </Link>
+          </span>
         </div>
       </form>
     </div>

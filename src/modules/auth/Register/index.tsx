@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "react-toastify";
 import AuthService from "../Services/index";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function Register() {
   const {
@@ -51,6 +52,12 @@ export default function Register() {
             hint={errors.password?.message}
           />
           <Button className="w-full">Cadastrar</Button>
+          <span className="text-center mt-2">
+            Já tem uma conta? {" "}
+            <Link href="/auth/login" className="text-[var(--primary-base)] hover:underline">
+              Faça login
+            </Link>
+          </span>
         </div>
       </form>
     </div>
