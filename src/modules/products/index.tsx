@@ -7,7 +7,7 @@ import useAuthStore from "@/modules/auth/authStore";
 import { CartResponse } from "@/modules/cart/types";
 import { toast } from "react-toastify";
 import { Button } from "@/shared/components/ui/button";
-import { Plus } from "lucide-react";
+import { Package, Plus } from "lucide-react";
 import ProductModal from "@/shared/components/ProductModal";
 import ProductService from "./Services/index";
 
@@ -155,6 +155,14 @@ export default function Products({ data: initialData }: ProductProps) {
             </Button>
           </div>
         )}
+        
+        {products.length === 0 && (
+          <div className="text-center text-gray-500">
+            <Package className="h-5 w-5 mr-2 text-gray-500" />
+            Nenhum produto encontrado.
+          </div>
+        )}
+
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {products.map((product) => (
             <ProductCard
